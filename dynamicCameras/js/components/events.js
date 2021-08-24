@@ -14,9 +14,9 @@ class Events {
       height: window.innerHeight,
     };
 
-    this.sketch.camera.aspect =
+    this.sketch.activeCamera.aspect =
       this.sketch.sizes.width / this.sketch.sizes.height;
-    this.sketch.camera.updateProjectionMatrix();
+    this.sketch.activeCamera.updateProjectionMatrix();
     this.sketch.renderer.setSize(
       this.sketch.sizes.width,
       this.sketch.sizes.height

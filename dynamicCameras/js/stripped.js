@@ -9,6 +9,7 @@ import Camera from "./components/camera";
 import Lights from "./components/lights";
 import Events from "./components/events";
 import Animator from "./components/animator";
+import { Object3D } from "three";
 
 class Sketch {
   constructor() {
@@ -26,7 +27,6 @@ class Sketch {
     this.events = new Events(this);
     this.clock = new THREE.Clock();
     this.clock.start();
-
     this.activeCamera = this.defaultCamera;
 
     this.settings = {
@@ -58,11 +58,6 @@ class Sketch {
   addObjects() {
     this.scene.add(this.stage);
 
-    // SET UP TARGET
-    const target = new THREE.Object3D();
-    target.position.y = 0.1;
-    this.scene.add(target);
-
     // SET UP CURVE FOR CAMERA TO FOLLOW
     const bezier = new THREE.CubicBezierCurve3(
       new THREE.Vector3(-0.5, 0.55, 0),
@@ -70,17 +65,22 @@ class Sketch {
       new THREE.Vector3(-0.45, 0.1, 0),
       new THREE.Vector3(0, 0.1, 0)
     );
+    
+    // SET UP TARGET
+    const target = new Object3D();
+    target.position.y = .1;
+    this.scene.add(target);
 
     this.animator.add(() => {
       const playhead = this.settings.playhead;
-
+      
       // UPDATE TARGET
-      target.position.x = Math.sqrt(playhead) - 0.5;
+      target.position.x = Math.sqrt(playhead) - .5;
 
       // UPDATE CAMERA
-      const pos = bezier.getPoint(playhead);
-      this.defaultCamera.position.set(pos.x, pos.y, pos.z);
       this.defaultCamera.lookAt(target.position);
+      const pos = bezier.getPoint(playhead);
+      this.defaultCamera.position.set(pos.x,pos.y,pos.z)
     });
   }
 }
