@@ -1,0 +1,17 @@
+.animationControls {
+  position: absolute;
+  bottom: 1em;
+  width: 10em;
+  left: 50%;
+  transform: translateX(-50%);
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.animationControls button {
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 30px;
+}
