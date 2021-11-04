@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Understanding Animation</title>
+    <meta charset="utf-8" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        overflow: hidden;
+      }
+      #pos {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 20vw;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="range" name="pos" id="pos" min="-1" max="1" step=".01" />
+    <script type="module">
+      import * as THREE from "three";
+
+      let camera, scene, renderer;
+
+      init();
+      // render();
+      animate();
+
+      function init() {
+        // SCENE
+        scene = new THREE.Scene();
+
+        // RENDERER
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // CAMERA
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        camera = new THREE.PerspectiveCamera(75, w / h, 0.01, 20);
+        camera.position.set(0, 0.7, 1.2);
+        camera.lookAt(0, 0, 0);
+
+        // MESH
+        const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+        const material = new THREE.MeshNormalMaterial();
+        window.mesh = new THREE.Mesh(geometry, material);
+
+        scene.add(mesh);
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // mesh.position.x = Math.sin(Date.now() * 0.001) * 0.5;
+
+        render();
+      }
+
+      function render() {
+        renderer.render(scene, camera);
+      }
+
+      document.getElementById("pos").addEventListener("input", function (e) {
+        console.log(e.target.value);
+        mesh.position.x = e.target.value;
+      });
+    </script>
+  </body>
+</html>
