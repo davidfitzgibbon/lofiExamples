@@ -5,12 +5,13 @@ import gui from "./components/gui";
 import Scene from "./components/scene";
 import Renderer from "./components/renderer";
 import Controls from "./components/controls";
+import Loader from "./components/loader";
 import Camera from "./components/camera";
 import Lights from "./components/lights";
 import Events from "./components/events";
 import Animator from "./components/animator";
-import { Object3D } from "three";
 
+const tau = Math.PI * 2;
 class Sketch {
   constructor() {
     this.gui = gui;
@@ -21,66 +22,75 @@ class Sketch {
     };
     this.scene = new Scene(this);
     this.renderer = new Renderer(this);
-    this.defaultCamera = new Camera(this);
+    this.camera = new Camera(this);
     this.lights = new Lights(this);
     this.controls = new Controls(this);
     this.events = new Events(this);
+    this.loader = new Loader(this, {
+      load: () => {
+        this.addObjects();
+      },
+    });
     this.clock = new THREE.Clock();
     this.clock.start();
-    this.activeCamera = this.defaultCamera;
 
     this.settings = {
       playhead: 0.001,
+      spookyDance: false,
     };
     this.gui.add(this.settings, "playhead", 0.001, 1, 0.001);
+    this.gui.add(this.settings, "spookyDance");
+
+    this.animating = false;
+    this.gui.hide();
   }
   init() {
-    const gltfLoader = new GLTFLoader();
-    gltfLoader.load("./models/stage.glb", (gltf) => {
-      let scale;
+    const gltfLoader = new GLTFLoader(this.loader.manager);
+    this.pumpkin = new THREE.Object3D();
+    gltfLoader.load("./models/pumpkin.glb", (gltf) => {
+      this.pumpkin = gltf.scene.children[0];
 
-      // STAGE
-      this.stage = gltf.scene.children[0];
-      scale = 0.005;
-      this.stage.scale.x = scale;
-      this.stage.scale.y = scale;
-      this.stage.scale.z = scale;
-      // CAM
-      this.cam = gltf.scene.children[1];
-      scale = 0.0005;
-      this.cam.scale.set(scale, scale, scale);
-
-      this.addObjects();
+      let scale = 0.5;
+      this.pumpkin.scale.set(scale, scale, scale);
+      this.pumpkin.position.y = 0.1;
+      this.pumpkin.castShadow = true;
+      this.pumpkin.material.roughness = 1;
+    });
+    gltfLoader.load("./models/table.glb", (gltf) => {
+      this.table = gltf.scene.children[0];
+      this.table.castShadow = true;
+      this.table.material.roughness = 1;
+      console.log(this.table);
     });
     document.body.appendChild(this.renderer.domElement);
     this.animator.animate();
   }
+  makeFloor() {
+    this.floorMat = new THREE.MeshStandardMaterial({ color: "#270703" });
+    this.floorGeo = new THREE.PlaneGeometry(3, 3);
+    this.floor = new THREE.Mesh(this.floorGeo, this.floorMat);
+    this.floor.rotation.x = -Math.PI * 0.5;
+    this.floor.position.y = -0.5;
+    this.floor.receiveShadow = true;
+  }
   addObjects() {
-    this.scene.add(this.stage);
+    this.makeFloor();
+    this.group = new THREE.Group();
+    this.group.add(this.floor);
+    this.group.add(this.pumpkin);
+    this.group.add(this.table);
+    this.scene.add(this.group);
 
-    // SET UP CURVE FOR CAMERA TO FOLLOW
-    const bezier = new THREE.CubicBezierCurve3(
-      new THREE.Vector3(-0.5, 0.55, 0),
-      new THREE.Vector3(-0.5, 0.1, 0),
-      new THREE.Vector3(-0.45, 0.1, 0),
-      new THREE.Vector3(0, 0.1, 0)
-    );
-    
-    // SET UP TARGET
-    const target = new Object3D();
-    target.position.y = .1;
-    this.scene.add(target);
-
+    // ANIMATE
     this.animator.add(() => {
       const playhead = this.settings.playhead;
-      
-      // UPDATE TARGET
-      target.position.x = Math.sqrt(playhead) - .5;
+      this.group.rotation.y = tau * playhead;
+      if (this.animating) {
+        this.group.rotation.y += 0.01;
 
-      // UPDATE CAMERA
-      this.defaultCamera.lookAt(target.position);
-      const pos = bezier.getPoint(playhead);
-      this.defaultCamera.position.set(pos.x,pos.y,pos.z)
+        this.settings.playhead = (this.group.rotation.y / tau) % 1;
+      }
+      this.gui.updateDisplay();
     });
   }
 }

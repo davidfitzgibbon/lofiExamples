@@ -5,18 +5,11 @@ class Lights {
     this.sketch = sketch;
     this.settings = { ...settings };
 
-    // this.ambient();
-    this.directional();
+    this.ambient();
   }
   ambient() {
-    let ambLight = new THREE.AmbientLight(0xffffff, 1.5, 100);
+    let ambLight = new THREE.AmbientLight(0xffffff, 1, 100);
     this.sketch.scene.add(ambLight);
-  }
-  directional() {
-    let dirLight1 = new THREE.DirectionalLight(0xffffff, 2, 100);
-    dirLight1.position.set(-3, 5, 1);
-    dirLight1.castShadow = true;
-    this.sketch.scene.add(dirLight1);
   }
 }
 export default Lights;

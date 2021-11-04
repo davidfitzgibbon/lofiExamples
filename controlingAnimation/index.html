@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Dynamic Camera - Stripped</title>
+    <title>Controlling Animation - Demo</title>
     <meta charset="utf-8" />
     <style>
       * {
@@ -13,13 +13,61 @@
         overflow: hidden;
       }
     </style>
+    <link rel="stylesheet" href="./css/animationControl.css" />
   </head>
   <body>
+    <ul class="animationControls">
+      <li><button class="restart">⏮</button></li>
+      <li><button class="play">▶️</button></li>
+      <li><button class="pause">⏸</button></li>
+    </ul>
     <script type="module">
       import Sketch from "./js/stripped.js";
 
-      let sketch = new Sketch();
+      window.sketch = new Sketch();
       sketch.init();
+
+      import anime from "animejs";
+
+      const play = document.querySelector(".animationControls .play");
+      const pause = document.querySelector(".animationControls .pause");
+      const restart = document.querySelector(".animationControls .restart");
+
+      let animation = anime({
+        targets: sketch.settings,
+        playhead: "1",
+        duration: 2000,
+        easing: "easeInOutSine",
+        autoplay: false,
+      });
+
+      play.addEventListener("click", animation.play);
+
+      pause.addEventListener("click", animation.pause);
+
+      restart.addEventListener("click", () => {
+        animation.restart();
+        animation.pause();
+      });
+
+      let rand = () => Math.random();
+      let spookyDance = () => {
+        anime({
+          targets: sketch.pumpkin.position,
+          x: () => Math.sin(rand() * Math.PI * 2) * 0.2,
+          y: () =>
+            Math.max(
+              0.1,
+              Math.cos(rand() * Math.PI * 2) +
+                Math.sin(rand() * Math.PI * 2) * 0.2
+            ),
+          z: () => Math.cos(rand() * Math.PI * 2) * 0.2,
+          duration: 700,
+          easing: "easeInOutElastic",
+          complete: spookyDance,
+        });
+      };
+      spookyDance();
     </script>
   </body>
 </html>
