@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "snowpack dev",
+    "build": "snowpack build"
+  },
+  "dependencies": {
+    "gsap": "^3.6.0",
+    "three": "^0.125.2"
+  }
+}
